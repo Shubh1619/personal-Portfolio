@@ -102,54 +102,92 @@
             });
         });
 
-      
-        const API_KEY = "AIzaSyAdvODSEYjgrlIvfJ6yT-t-LyOJ6cmT928"; 
-        const chatbox = document.getElementById("chatbox");
-        const userInput = document.getElementById("userInput");
         
-        // Function to send a message
-        async function sendMessage() {
-            let userText = userInput.value.trim();
-            if (!userText) return;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const chatToggle = document.getElementById("chat-toggle");
+            const chatContainer = document.getElementById("chat-container");
+            const chatInput = document.getElementById("chat-input");
+            const chatMessages = document.getElementById("chat-messages");
+            const sendBtn = document.getElementById("send-btn");
+            const closeChat = document.getElementById("close-chat");
         
-            appendMessage("You", userText);
-            userInput.value = "";
+            // Your Gemini API Key (Replace with your actual API key)
+            const API_KEY = "AIzaSyAdvODSEYjgrlIvfJ6yT-t-LyOJ6cmT928"; 
         
-            let botResponse = await getGeminiResponse(userText);
-            appendMessage("Bot", botResponse);
-        }
-        
-        // Function to get response from Gemini API
-        async function getGeminiResponse(message) {
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateText?key=${API_KEY}`;
-        
-            const requestBody = {
-                prompt: { text: message },
-                temperature: 0.7,
-                maxOutputTokens: 100
+            // Chatbot Responses
+            const responses = {
+                "hello": "Hey! How can I help you?",
+                "who are you": "I'm Shubham Ubale's AI assistant!",
+                "portfolio": "Check out my portfolio built with Flask & FastAPI!",
+                "fastapi": "FastAPI is a modern web framework for Python.",
+                "flask": "Flask is a lightweight Python web framework.",
+                "ai security": "I'm working on AI Security and Hiring AI projects.",
+                "baaptube": "BaapTube is my YouTube video downloader project!",
+                "about me": "I am Shubham Ubale, a Python developer. <a href='your-pdf-link.pdf' target='_blank'>Download My About Me PDF</a>",
+                "resume": "Here’s my resume: <a href='your-resume-link.pdf' target='_blank'>Download Resume</a>"
             };
         
-            try {
-                const response = await fetch(endpoint, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(requestBody)
-                });
-        
-                const data = await response.json();
-                return data.candidates?.[0]?.output || "Sorry, I couldn't understand that.";
-            } catch (error) {
-                console.error("Error:", error);
-                return "Oops! Something went wrong.";
+            // Function to Display Messages
+            function appendMessage(user, message) {
+                const msgDiv = document.createElement("div");
+                msgDiv.classList.add(user === "You" ? "user-message" : "bot-message");
+                msgDiv.innerHTML = `<strong>${user}:</strong> ${message}`;
+                chatMessages.appendChild(msgDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;  // Auto-scroll
             }
-        }
         
-        // Function to append messages to chatbox
-        function appendMessage(sender, text) {
-            let messageDiv = document.createElement("div");
-            messageDiv.classList.add(sender === "You" ? "user-message" : "bot-message");
-            messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
-            chatbox.appendChild(messageDiv);
-            chatbox.scrollTop = chatbox.scrollHeight;
-        }
+            // Function to Fetch Response from Gemini API
+            async function getGeminiResponse(message) {
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateText?key=${API_KEY}`;
+                
+                const requestBody = {
+                    prompt: { text: message },
+                    temperature: 0.7,
+                    maxOutputTokens: 100
+                };
+        
+                try {
+                    const response = await fetch(endpoint, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(requestBody)
+                    });
+        
+                    const data = await response.json();
+                    return data.candidates?.[0]?.output || "Sorry, I couldn't understand that.";
+                } catch (error) {
+                    console.error("Error:", error);
+                    return "Oops! Something went wrong while fetching response.";
+                }
+            }
+        
+            // Handle Sending Messages
+            sendBtn.addEventListener("click", async () => {
+                const userMessage = chatInput.value.trim().toLowerCase();
+                if (!userMessage) return;
+        
+                appendMessage("You", userMessage);
+                chatInput.value = "";
+        
+                let botReply = responses[userMessage];
+        
+                // If no predefined response, get reply from Gemini API
+                if (!botReply) {
+                    botReply = await getGeminiResponse(userMessage);
+                }
+        
+                appendMessage("Bot", botReply);
+            });
+        
+            // Toggle Chat Visibility
+            chatToggle.addEventListener("click", () => {
+                chatContainer.style.display = chatContainer.style.display === "block" ? "none" : "block";
+            });
+        
+            // Close Chat
+            closeChat.addEventListener("click", () => {
+                chatContainer.style.display = "none";
+            });
+        });
         
