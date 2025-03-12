@@ -105,6 +105,7 @@
         // CHATBOT
 
 
+
         document.addEventListener("DOMContentLoaded", function () {
             const chatToggle = document.getElementById("chat-toggle");
             const chatContainer = document.getElementById("chat-container");
@@ -113,11 +114,12 @@
             const sendBtn = document.getElementById("send-btn");
             const closeChat = document.getElementById("close-chat");
         
-            // ✅ Use API key from Vite environment variables
-            const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+            // ✅ Replace this with your actual Gemini API Key
+            const API_KEY = "AIzaSyBMRU8261hzfVphE3LsHE_vz848k-RD9uI"; 
         
             // ✅ Correct API Endpoint
             const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
+
         
             // Predefined Chatbot Responses
             const responses = {
@@ -143,30 +145,37 @@
         
             // ✅ Function to Fetch Response from Gemini API
             async function getGeminiResponse(message) {
+                const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
+
+            
                 const requestBody = {
                     contents: [{ role: "user", parts: [{ text: message }] }]
                 };
-        
+            
                 try {
                     const response = await fetch(endpoint, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(requestBody)
                     });
-        
+            
                     const data = await response.json();
-        
+            
                     if (data.error) {
                         console.error("API Error:", data.error);
                         return `Error: ${data.error.message}`;
                     }
-        
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't understand that.";
+            
+                    return data.candidates?.[0]?.content?.parts[0]?.text || "Sorry, I couldn't understand that.";
                 } catch (error) {
                     console.error("Network Error:", error);
                     return "Oops! Something went wrong while fetching response.";
                 }
             }
+            
+            
+
+
         
             // Handle Sending Messages
             sendBtn.addEventListener("click", async () => {
@@ -177,7 +186,7 @@
                 chatInput.value = "";
         
                 let botReply = responses[userMessage.toLowerCase()] || await getGeminiResponse(userMessage);
-        
+                
                 appendMessage("Bot", botReply);
             });
         
