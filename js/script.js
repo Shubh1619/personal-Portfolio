@@ -112,10 +112,10 @@
             const sendBtn = document.getElementById("send-btn");
             const closeChat = document.getElementById("close-chat");
         
-            // Your Gemini API Key (Replace with your actual API key)
-            const API_KEY = "AIzaSyAdvODSEYjgrlIvfJ6yT-t-LyOJ6cmT928"; 
+            // Gemini API Key (Replace with a valid one)
+            const API_KEY = "YOUR_GEMINI_API_KEY"; 
         
-            // Chatbot Responses
+            // Predefined Chatbot Responses
             const responses = {
                 "hello": "Hey! How can I help you?",
                 "who are you": "I'm Shubham Ubale's AI assistant!",
@@ -134,17 +134,15 @@
                 msgDiv.classList.add(user === "You" ? "user-message" : "bot-message");
                 msgDiv.innerHTML = `<strong>${user}:</strong> ${message}`;
                 chatMessages.appendChild(msgDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;  // Auto-scroll
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         
             // Function to Fetch Response from Gemini API
             async function getGeminiResponse(message) {
-                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateText?key=${API_KEY}`;
+                const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateText?key=${API_KEY}`;
                 
                 const requestBody = {
-                    prompt: { text: message },
-                    temperature: 0.7,
-                    maxOutputTokens: 100
+                    contents: [{ role: "user", parts: [{ text: message }] }]
                 };
         
                 try {
@@ -155,7 +153,7 @@
                     });
         
                     const data = await response.json();
-                    return data.candidates?.[0]?.output || "Sorry, I couldn't understand that.";
+                    return data?.candidates?.[0]?.content?.parts[0]?.text || "Sorry, I couldn't understand that.";
                 } catch (error) {
                     console.error("Error:", error);
                     return "Oops! Something went wrong while fetching response.";
@@ -164,19 +162,14 @@
         
             // Handle Sending Messages
             sendBtn.addEventListener("click", async () => {
-                const userMessage = chatInput.value.trim().toLowerCase();
+                const userMessage = chatInput.value.trim();
                 if (!userMessage) return;
         
                 appendMessage("You", userMessage);
                 chatInput.value = "";
         
-                let botReply = responses[userMessage];
-        
-                // If no predefined response, get reply from Gemini API
-                if (!botReply) {
-                    botReply = await getGeminiResponse(userMessage);
-                }
-        
+                let botReply = responses[userMessage.toLowerCase()] || await getGeminiResponse(userMessage);
+                
                 appendMessage("Bot", botReply);
             });
         
