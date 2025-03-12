@@ -102,7 +102,8 @@
             });
         });
 
-        
+        // CHATBOT
+
 
         document.addEventListener("DOMContentLoaded", function () {
             const chatToggle = document.getElementById("chat-toggle");
@@ -112,8 +113,11 @@
             const sendBtn = document.getElementById("send-btn");
             const closeChat = document.getElementById("close-chat");
         
-            // Gemini API Key (Replace with a valid one)
-            const API_KEY = "YOUR_GEMINI_API_KEY"; 
+            // ✅ Use API key from Vite environment variables
+            const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+        
+            // ✅ Correct API Endpoint
+            const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
         
             // Predefined Chatbot Responses
             const responses = {
@@ -137,10 +141,8 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         
-            // Function to Fetch Response from Gemini API
+            // ✅ Function to Fetch Response from Gemini API
             async function getGeminiResponse(message) {
-                const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateText?key=${API_KEY}`;
-                
                 const requestBody = {
                     contents: [{ role: "user", parts: [{ text: message }] }]
                 };
@@ -153,9 +155,15 @@
                     });
         
                     const data = await response.json();
-                    return data?.candidates?.[0]?.content?.parts[0]?.text || "Sorry, I couldn't understand that.";
+        
+                    if (data.error) {
+                        console.error("API Error:", data.error);
+                        return `Error: ${data.error.message}`;
+                    }
+        
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't understand that.";
                 } catch (error) {
-                    console.error("Error:", error);
+                    console.error("Network Error:", error);
                     return "Oops! Something went wrong while fetching response.";
                 }
             }
@@ -169,7 +177,7 @@
                 chatInput.value = "";
         
                 let botReply = responses[userMessage.toLowerCase()] || await getGeminiResponse(userMessage);
-                
+        
                 appendMessage("Bot", botReply);
             });
         
