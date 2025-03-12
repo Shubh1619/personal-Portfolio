@@ -93,21 +93,8 @@ body {
 .btn {
     padding: 10px 20px;
     border-radius: 5px}
-/* Back to Top Button */
-.back-to-top {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #f39c12;
-    color: white;
-    padding: 10px;
-    border-radius: 50%;
-    display: none;
-    cursor: pointer}
-.back-to-top.show {
-    display: block}
 
-
+    
 /* chat bot */
 
 #chat-container {
