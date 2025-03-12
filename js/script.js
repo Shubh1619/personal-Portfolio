@@ -103,48 +103,53 @@
         });
 
       
-const chatToggle = document.getElementById("chat-toggle");
-const chatContainer = document.getElementById("chat-container");
-const chatInput = document.getElementById("chat-input");
-const chatMessages = document.getElementById("chat-messages");
-const sendBtn = document.getElementById("send-btn");
-
-const responses = {
-    "hello": "Hey! How can I help you?",
-    "who are you": "I'm Shubham Ubale's AI chat assistant!",
-    "portfolio": "Check out my portfolio website with Flask and FastAPI!",
-    "fastapi": "FastAPI is a modern web framework for building APIs with Python.",
-    "flask": "Flask is a lightweight web framework in Python.",
-    "ai security": "I'm working on AI Security and Hiring AI projects.",
-    "baaptube": "BaapTube is my YouTube video downloader project!",
-    "default": "I'm still learning! Ask me about FastAPI, Flask, or my projects.",
-    "about me": "I am Shubham Ubale, a passionate Python developer working on AI security and FastAPI. You can learn more about me here: <a href='your-pdf-link.pdf' target='_blank'>Download My About Me PDF</a>",
-    "portfolio": "Check out my portfolio website: <a href='https://yourportfolio.com' target='_blank'>Visit Here</a>",
-    "resume": "Here’s my resume: <a href='your-resume-link.pdf' target='_blank'>Download Resume</a>",
-    "default": "I'm here to help! Ask me anything about FastAPI, Flask, AI Security, or my projects."
-};
-
-
-
-function appendMessage(user, message) {
-    const msgDiv = document.createElement("div");
-    msgDiv.innerHTML = `<strong>${user}:</strong> ${message}`;
-    chatMessages.appendChild(msgDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-sendBtn.addEventListener("click", () => {
-    const userMessage = chatInput.value.toLowerCase();
-    if (!userMessage) return;
-    appendMessage("You", userMessage);
-    chatInput.value = "";
-    setTimeout(() => {
-        const botReply = responses[userMessage] || responses["default"];
-        appendMessage("Bot", botReply);
-    }, 500);
-});
-
-chatToggle.addEventListener("click", () => {
-    chatContainer.style.display = chatContainer.style.display === "block" ? "none" : "block";
-});
+        const API_KEY = "AIzaSyAdvODSEYjgrlIvfJ6yT-t-LyOJ6cmT928"; 
+        const chatbox = document.getElementById("chatbox");
+        const userInput = document.getElementById("userInput");
+        
+        // Function to send a message
+        async function sendMessage() {
+            let userText = userInput.value.trim();
+            if (!userText) return;
+        
+            appendMessage("You", userText);
+            userInput.value = "";
+        
+            let botResponse = await getGeminiResponse(userText);
+            appendMessage("Bot", botResponse);
+        }
+        
+        // Function to get response from Gemini API
+        async function getGeminiResponse(message) {
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateText?key=${API_KEY}`;
+        
+            const requestBody = {
+                prompt: { text: message },
+                temperature: 0.7,
+                maxOutputTokens: 100
+            };
+        
+            try {
+                const response = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestBody)
+                });
+        
+                const data = await response.json();
+                return data.candidates?.[0]?.output || "Sorry, I couldn't understand that.";
+            } catch (error) {
+                console.error("Error:", error);
+                return "Oops! Something went wrong.";
+            }
+        }
+        
+        // Function to append messages to chatbox
+        function appendMessage(sender, text) {
+            let messageDiv = document.createElement("div");
+            messageDiv.classList.add(sender === "You" ? "user-message" : "bot-message");
+            messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
         
