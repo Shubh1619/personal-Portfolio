@@ -17,7 +17,7 @@
         $(document).ready(function() {
             // Typed.js
             let typed = new Typed('.typing', {
-                strings: ['a Web Developer', 'a Designer', 'a Creator'],
+                strings: ['a Web Developer', 'a Python Developer', 'a AI Developer'],
                 typeSpeed: 100,
                 backSpeed: 60,
                 loop: true
@@ -102,102 +102,4 @@
             });
         });
 
-        // CHATBOT
-
-
-
-        document.addEventListener("DOMContentLoaded", function () {
-            const chatToggle = document.getElementById("chat-toggle");
-            const chatContainer = document.getElementById("chat-container");
-            const chatInput = document.getElementById("chat-input");
-            const chatMessages = document.getElementById("chat-messages");
-            const sendBtn = document.getElementById("send-btn");
-            const closeChat = document.getElementById("close-chat");
-        
-            // ✅ Replace this with your actual Gemini API Key
-            const API_KEY = "AIzaSyBMRU8261hzfVphE3LsHE_vz848k-RD9uI"; 
-        
-            // ✅ Correct API Endpoint
-            const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
-
-        
-            // Predefined Chatbot Responses
-            const responses = {
-                "hello": "Hey! How can I help you?",
-                "who are you": "I'm Shubham Ubale's AI assistant!",
-                "portfolio": "Check out my portfolio built with Flask & FastAPI!",
-                "fastapi": "FastAPI is a modern web framework for Python.",
-                "flask": "Flask is a lightweight Python web framework.",
-                "ai security": "I'm working on AI Security and Hiring AI projects.",
-                "baaptube": "BaapTube is my YouTube video downloader project!",
-                "about me": "I am Shubham Ubale, a Python developer. <a href='your-pdf-link.pdf' target='_blank'>Download My About Me PDF</a>",
-                "resume": "Here’s my resume: <a href='your-resume-link.pdf' target='_blank'>Download Resume</a>"
-            };
-        
-            // Function to Display Messages
-            function appendMessage(user, message) {
-                const msgDiv = document.createElement("div");
-                msgDiv.classList.add(user === "You" ? "user-message" : "bot-message");
-                msgDiv.innerHTML = `<strong>${user}:</strong> ${message}`;
-                chatMessages.appendChild(msgDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-        
-            // ✅ Function to Fetch Response from Gemini API
-            async function getGeminiResponse(message) {
-                const endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
-
-            
-                const requestBody = {
-                    contents: [{ role: "user", parts: [{ text: message }] }]
-                };
-            
-                try {
-                    const response = await fetch(endpoint, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(requestBody)
-                    });
-            
-                    const data = await response.json();
-            
-                    if (data.error) {
-                        console.error("API Error:", data.error);
-                        return `Error: ${data.error.message}`;
-                    }
-            
-                    return data.candidates?.[0]?.content?.parts[0]?.text || "Sorry, I couldn't understand that.";
-                } catch (error) {
-                    console.error("Network Error:", error);
-                    return "Oops! Something went wrong while fetching response.";
-                }
-            }
-            
-            
-
-
-        
-            // Handle Sending Messages
-            sendBtn.addEventListener("click", async () => {
-                const userMessage = chatInput.value.trim();
-                if (!userMessage) return;
-        
-                appendMessage("You", userMessage);
-                chatInput.value = "";
-        
-                let botReply = responses[userMessage.toLowerCase()] || await getGeminiResponse(userMessage);
-                
-                appendMessage("Bot", botReply);
-            });
-        
-            // Toggle Chat Visibility
-            chatToggle.addEventListener("click", () => {
-                chatContainer.style.display = chatContainer.style.display === "block" ? "none" : "block";
-            });
-        
-            // Close Chat
-            closeChat.addEventListener("click", () => {
-                chatContainer.style.display = "none";
-            });
-        });
         
