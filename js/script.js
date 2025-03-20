@@ -102,4 +102,91 @@
             });
         });
 
-        
+        // Chatbot
+        const chatBtn = document.querySelector('.chat-btn');
+const chatWidget = document.querySelector('.chat-widget');
+const chatWidgetInput = document.querySelector('.chat-widget-input');
+const chatWidgetSubmit = document.querySelector('.chat-widget-submit');
+const chatWidgetClose = document.querySelector('.chat-widget-close');
+const chatWidgetMessages = document.querySelector('.chat-widget-messages');
+
+// Toggle chat widget
+chatBtn.addEventListener('click', function () {
+    chatWidget.classList.toggle('open');
+});
+
+// Close chat widget
+chatWidgetClose.addEventListener('click', function () {
+    chatWidget.classList.remove('open');
+});
+
+// Send message
+chatWidgetSubmit.addEventListener('click', function () {
+    sendMessage();
+});
+
+// Send message on pressing Enter key
+chatWidgetInput.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+
+function getCurrentTime() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+
+function getBotResponse(userMessage) {
+    const lowerCaseMessage = userMessage.toLowerCase();
+
+    // Rule-based responses
+    if (lowerCaseMessage.includes('hello') || lowerCaseMessage.includes('hi')) {
+        return "Hello! How can I help you today?";
+    } else if (lowerCaseMessage.includes('how are you')) {
+        return "I'm just a bot, but I'm functioning perfectly! How about you?";
+    } else if (lowerCaseMessage.includes('projects')) {
+        return "I can tell you about my projects. Which one are you interested in?";
+    } else if (lowerCaseMessage.includes('skills')) {
+        return "My skills include JavaScript, HTML, CSS, and more!";
+    } else if (lowerCaseMessage.includes('bye') || lowerCaseMessage.includes('goodbye')) {
+        return "Goodbye! Have a great day!";
+    } else {
+        return "I'm sorry, I don't understand that. Can you rephrase?";
+    }
+}
+
+function sendMessage() {
+    let message = chatWidgetInput.value.trim();
+    if (message) {
+        const time = getCurrentTime();
+
+        // Add user message with timestamp
+        chatWidgetMessages.innerHTML += `
+            <div class="chat-widget-message chat-widget-message-user">
+                <div class="message-text">${message}</div>
+                <div class="message-time">${time}</div>
+            </div>
+        `;
+
+        // Clear input
+        chatWidgetInput.value = '';
+
+        // Simulate bot typing
+        setTimeout(() => {
+            const botResponse = getBotResponse(message);
+            const botTime = getCurrentTime();
+
+            // Add bot response with timestamp
+            chatWidgetMessages.innerHTML += `
+                <div class="chat-widget-message chat-widget-message-bot">
+                    <div class="message-text">${botResponse}</div>
+                    <div class="message-time">${botTime}</div>
+                </div>
+            `;
+            chatWidgetMessages.scrollTop = chatWidgetMessages.scrollHeight;
+        }, 500); // Simulate a delay for bot response
+    }
+}
